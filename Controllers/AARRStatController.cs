@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
 
 namespace AARR_stat.Controllers
 {
@@ -24,28 +26,43 @@ namespace AARR_stat.Controllers
         [HttpGet]
         public IEnumerable<AARRStatSessionItem> Get()
         {
+            var sessionItems = new List<AARRStatSessionItem>();
+
             try
             {
                 var conn = new MySql.Data.MySqlClient.MySqlConnection();
                 conn.ConnectionString = _configuration["ConnectionStrings:DefaultConnection"];
                 conn.Open();
+
+                var cmd = new MySqlCommand();
+                cmd.CommandText = "session";
+                cmd.Connection = conn;
+                cmd.CommandType = CommandType.TableDirect;
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var sessionItem = new AARRStatSessionItem() {
+                            Session = reader[0].ToString(),
+                            User = reader[1].ToString(),
+                            Device = reader[2].ToString(),
+                            Start = DateTime.Parse(reader[3].ToString())
+                        };
+                        sessionItems.Add(sessionItem);
+                    }
+                }
             }
             catch (MySql.Data.MySqlClient.MySqlException ex)
             {
                 _logger.LogError(ex, ex.Message);
             }
+            return sessionItems.ToArray();
+        }
 
-
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new AARRStatSessionItem
-            {
-                User = Guid.NewGuid().ToString(),
-                Device = Guid.NewGuid().ToString(),
-                Session = Guid.NewGuid().ToString(),
-                Start = DateTime.Now.AddDays(index).ToUniversalTime(),
-                End = DateTime.Now.AddDays(index).AddMinutes(5).ToUniversalTime(),
-            })
-            .ToArray();
+        [HttpPost]
+        public ActionResult Post(AARRStatSessionItem sessionItem) 
+        {
+            return Ok(new { result = "ok" });
         }
     }
 }

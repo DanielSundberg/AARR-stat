@@ -8,6 +8,6 @@ namespace AARR_stat
         public string Device { get; set; }
         public string Session { get; set; }
         public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        public DateTime? End { get; set; }
     }
 }
