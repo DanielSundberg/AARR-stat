@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
+using AARR_stat.Model.Db;
+using AARR_stat.Model.Dto;
 
 namespace AARR_stat.Controllers
 {
@@ -24,35 +26,17 @@ namespace AARR_stat.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<AARRStatSessionItem> Get()
+        public IEnumerable<SessionViewDto> Get()
         {
-            var sessionItems = new List<AARRStatSessionItem>();
+            var sessionItems = new List<SessionViewDto>();
 
             try
             {
-                var conn = new MySql.Data.MySqlClient.MySqlConnection();
-                conn.ConnectionString = _configuration["ConnectionStrings:AARRStatConnection"];
-                conn.Open();
-
-                var cmd = new MySqlCommand();
-                cmd.CommandText = "session";
-                cmd.Connection = conn;
-                cmd.CommandType = CommandType.TableDirect;
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var sessionItem = new AARRStatSessionItem() {
-                            Session = reader[0].ToString(),
-                            User = reader[1].ToString(),
-                            Device = reader[2].ToString(),
-                            Start = DateTime.Parse(reader[3].ToString())
-                        };
-                        sessionItems.Add(sessionItem);
-                    }
+                using (var db = new PetaPoco.Database(_configuration["ConnectionStrings:AARRStatConnection"], "MariaDb")) {
+                    sessionItems = db.Query<SessionViewDto>("SELECT * FROM session").ToList();
                 }
             }
-            catch (MySql.Data.MySqlClient.MySqlException ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
             }
@@ -60,9 +44,32 @@ namespace AARR_stat.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post(AARRStatSessionItem sessionItem) 
+        [Route("StartSession")]
+        public ActionResult PostStartSession([FromBody] StartSessionDto sessionItem) 
         {
-            return Ok(new { result = "ok" });
+            try
+            {
+                using (var db = new PetaPoco.Database(_configuration["ConnectionStrings:AARRStatConnection"], "MariaDb")) {
+                    var user = new User { Id = sessionItem.User };
+                    var device = new Device { Id = sessionItem.Device, User = user.Id };
+                    var session = new Session { Id = sessionItem.Session, User = user.Id, Device = device.Id, Start = DateTime.UtcNow };
+                    if (String.IsNullOrEmpty(db.SingleOrDefault<User>("where id=@0", sessionItem.User)?.Id))
+                    {
+                        db.Insert("user", "id", false, user);
+                    }
+                    if (String.IsNullOrEmpty(db.SingleOrDefault<Device>("where id=@0", sessionItem.Device)?.Id))
+                    {
+                        db.Insert("device", "id", false, device);
+                    }
+                    db.Insert("session", "id", false, session);
+                }
+                return Ok(new { result = "ok" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
         }
     }
 }

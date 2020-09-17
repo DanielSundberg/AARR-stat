@@ -15,6 +15,7 @@
     <PackageReference Include="DbUp-MySql" Version="4.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.8" />
     <PackageReference Include="MySql.Data" Version="8.0.21" />
+    <PackageReference Include="PetaPoco.Compiled" Version="6.0.459" />
   </ItemGroup>
 
   <ItemGroup>
