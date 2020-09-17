@@ -12,8 +12,10 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 
+-- Create database handled by DbUp library
+-- CREATE DATABASE IF NOT EXISTS `aarrstat` /*!40100 DEFAULT CHARACTER SET utf8 */;
+
 -- Dumping database structure for aarrstat
-CREATE DATABASE IF NOT EXISTS `aarrstat` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `aarrstat`;
 
 -- Dumping structure for table aarrstat.device

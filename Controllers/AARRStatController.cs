@@ -31,7 +31,7 @@ namespace AARR_stat.Controllers
             try
             {
                 var conn = new MySql.Data.MySqlClient.MySqlConnection();
-                conn.ConnectionString = _configuration["ConnectionStrings:DefaultConnection"];
+                conn.ConnectionString = _configuration["ConnectionStrings:AARRStatConnection"];
                 conn.Open();
 
                 var cmd = new MySqlCommand();

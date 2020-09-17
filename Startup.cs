@@ -1,3 +1,6 @@
+using System;
+using System.Reflection;
+using DbUp;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -14,6 +17,9 @@ namespace AARR_stat
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+           
+
         }
 
         public IConfiguration Configuration { get; }
@@ -33,6 +39,20 @@ namespace AARR_stat
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Create and update db
+            var connectionString = Configuration["ConnectionStrings:AdminConnection"];
+            EnsureDatabase.For.MySqlDatabase(connectionString);
+            var upgrader = DeployChanges.To
+                .MySqlDatabase(connectionString)
+                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
+                .LogToConsole()
+                .Build();
+            var result = upgrader.PerformUpgrade();
+            if (!result.Successful)
+            {
+                throw new Exception(result.Error.Message, result.Error);
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
