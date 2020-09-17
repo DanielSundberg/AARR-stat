@@ -12,11 +12,11 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 
--- Dumping database structure for aarsusage
-CREATE DATABASE IF NOT EXISTS `aarsusage` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `aarsusage`;
+-- Dumping database structure for aarrstat
+CREATE DATABASE IF NOT EXISTS `aarrstat` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `aarrstat`;
 
--- Dumping structure for table aarsusage.device
+-- Dumping structure for table aarrstat.device
 CREATE TABLE IF NOT EXISTS `device` (
   `id` varchar(64) NOT NULL DEFAULT '0',
   `user` varchar(64) NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `device` (
 
 -- Data exporting was unselected.
 
--- Dumping structure for table aarsusage.session
+-- Dumping structure for table aarrstat.session
 CREATE TABLE IF NOT EXISTS `session` (
   `id` varchar(64) NOT NULL,
   `user_id` varchar(64) NOT NULL DEFAULT '',
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `session` (
 
 -- Data exporting was unselected.
 
--- Dumping structure for table aarsusage.user
+-- Dumping structure for table aarrstat.user
 CREATE TABLE IF NOT EXISTS `user` (
   `id` varchar(64) NOT NULL,
   PRIMARY KEY (`id`)
