@@ -1,2 +1,2 @@
 # AARR-stat
-Statistics for AARR
+Collect and display anonymous statistics for AARR (AARR RSS reader)
