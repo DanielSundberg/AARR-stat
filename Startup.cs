@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using DbUp;
 using Microsoft.AspNetCore.Builder;
@@ -16,10 +17,14 @@ namespace AARR_stat
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+           var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appsettings.prod.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appsettings.development.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables();
 
-           
-
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
