@@ -17,14 +17,8 @@ namespace AARR_stat
     {
         public Startup(IConfiguration configuration)
         {
-           var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile("appsettings.prod.json", optional: true, reloadOnChange: true)
-                .AddJsonFile("appsettings.development.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables();
 
-            Configuration = builder.Build();
+            Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
