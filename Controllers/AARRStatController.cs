@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using AARR_stat.Model.Db;
 using AARR_stat.Model.Dto;
+using PetaPoco;
 
 namespace AARR_stat.Controllers
 {
@@ -26,14 +27,26 @@ namespace AARR_stat.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<SessionViewDto> Get()
+        public IEnumerable<SessionViewDto> Get(DateTime? start, DateTime? end)
         {
             var sessionItems = new List<SessionViewDto>();
 
             try
             {
                 using (var db = new PetaPoco.Database(_configuration["ConnectionStrings:AARRStatConnection"], "MariaDb")) {
-                    sessionItems = db.Query<SessionViewDto>("SELECT * FROM session").ToList();
+                    var sql = PetaPoco.Sql.Builder.Append("SELECT s.*,t.name AS type FROM session s JOIN sessiontype t ON s.type_id=t.id");
+                    if (start.HasValue) {
+                        sql.Append("WHERE s.start>=@0", start);
+                    }
+                    if (end.HasValue) {
+                        sql.Append("WHERE s.start<@0", end);
+                    }
+                    // Default is to return last 24h
+                    if (!start.HasValue && !end.HasValue) {
+                        sql.Append("WHERE s.start>@0", DateTime.UtcNow.AddDays(-1));
+                    }
+                    sql.OrderBy("s.start");
+                    sessionItems = db.Query<SessionViewDto>(sql).ToList();
                 }
             }
             catch (Exception ex)

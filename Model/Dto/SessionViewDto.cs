@@ -5,6 +5,9 @@ namespace AARR_stat.Model.Dto
 {
     public class SessionViewDto
     {
+        [Column(Name = "type")]
+        public string Type { get; set; }
+
         [Column(Name = "user_id")]
         public string User { get; set; }
         [Column(Name = "device_id")]

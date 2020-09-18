@@ -23,6 +23,7 @@
     <EmbeddedResource Include="Scripts\0002-create-users.sql" />
     <EmbeddedResource Include="Scripts\0003-seed-sessions.sql" />
     <EmbeddedResource Include="Scripts\0004-add-session-type.sql" />
+    <EmbeddedResource Include="Scripts\0005-session-start-end-datetime.sql" />
   </ItemGroup>
 
   <ItemGroup>
