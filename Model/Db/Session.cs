@@ -9,6 +9,9 @@ namespace AARR_stat.Model.Db
     {
         [Column(Name = "id")]
         public string Id { get; set; }
+        [Column(Name = "type_id")]
+        public int Type { get; set; }
+
         [Column(Name = "user_id")]
          public string User { get; set; }
         [Column(Name = "device_id")]

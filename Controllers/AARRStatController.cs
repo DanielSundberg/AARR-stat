@@ -45,22 +45,29 @@ namespace AARR_stat.Controllers
 
         [HttpPost]
         [Route("StartSession")]
-        public ActionResult PostStartSession([FromBody] StartSessionDto sessionItem) 
+        public ActionResult PostStartSession([FromBody] StartSessionDto sessionDto) 
         {
             try
             {
                 using (var db = new PetaPoco.Database(_configuration["ConnectionStrings:AARRStatConnection"], "MariaDb")) {
-                    var user = new User { Id = sessionItem.User };
-                    var device = new Device { Id = sessionItem.Device, User = user.Id };
-                    var session = new Session { Id = sessionItem.Session, User = user.Id, Device = device.Id, Start = DateTime.UtcNow };
-                    if (String.IsNullOrEmpty(db.SingleOrDefault<User>("where id=@0", sessionItem.User)?.Id))
+                    var user = new User { Id = sessionDto.User };
+                    var device = new Device { Id = sessionDto.Device, User = user.Id };
+                    var session = new Session { Id = sessionDto.Session, User = user.Id, Device = device.Id, Start = DateTime.UtcNow };
+                    if (String.IsNullOrEmpty(db.SingleOrDefault<User>("where id=@0", sessionDto.User)?.Id))
                     {
                         db.Insert("user", "id", false, user);
                     }
-                    if (String.IsNullOrEmpty(db.SingleOrDefault<Device>("where id=@0", sessionItem.Device)?.Id))
+                    if (String.IsNullOrEmpty(db.SingleOrDefault<Device>("where id=@0", sessionDto.Device)?.Id))
                     {
                         db.Insert("device", "id", false, device);
                     }
+                    var dbSessionType = db.SingleOrDefault<SessionType>("where name like @0", $"%{sessionDto.Type}%");
+                    if (dbSessionType == null) 
+                    {
+                        _logger.LogError($"Request parameter 'type' has an invalid value: '{sessionDto.Type}'.");
+                        return BadRequest(new { result = "error", message = $"Request parameter 'type' has an invalid value: '{sessionDto.Type}'."});
+                    }
+                    session.Type = dbSessionType.Id;
                     db.Insert("session", "id", false, session);
                 }
                 return Ok(new { result = "ok" });
