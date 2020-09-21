@@ -33,6 +33,9 @@ namespace AARR_stat
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            // Register the Swagger generator
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -66,6 +69,15 @@ namespace AARR_stat
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "AARRStat API V1");
+            });
 
             app.UseRouting();
 

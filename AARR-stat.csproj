@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.8" />
     <PackageReference Include="MySql.Data" Version="8.0.21" />
     <PackageReference Include="PetaPoco.Compiled" Version="6.0.459" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,6 +38,7 @@
     <When Condition="'$(EnvironmentName)' == 'Prod'">
       <ItemGroup>
         <Content Remove="appsettings.Development.json" />
+        <Content Remove="appsettings.prod.example.json" />
       </ItemGroup>
     </When>
   </Choose>
