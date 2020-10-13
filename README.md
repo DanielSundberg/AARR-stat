@@ -24,3 +24,10 @@ Then create a bundle
 ````
 dotnet publish --output .\publish --configuration Release /p:EnvironmentName=Prod
 ````
+
+Create a zip file for uploading to AWS EB
+````
+del /s .\publish
+del .\publish.zip
+7z a -r -aoa publish.zip .\publish\*
+````
