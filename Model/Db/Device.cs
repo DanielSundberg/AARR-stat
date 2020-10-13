@@ -11,5 +11,7 @@ namespace AARR_stat.Model.Db
         public string Id { get; set; }
         [Column(Name = "user")]
         public string User { get; set; }
+        [Column(Name = "description")]
+        public string Description { get; set; }
     }
 }

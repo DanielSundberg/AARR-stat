@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace AARR_stat
 {
@@ -39,8 +40,29 @@ namespace AARR_stat
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            // Log request and headers for proxy trouble shooting
+            app.Use(async (context, next) =>
+            {
+                // Request method, scheme, and path
+                logger.LogDebug("Request Method: {Method}", context.Request.Method);
+                logger.LogDebug("Request Scheme: {Scheme}", context.Request.Scheme);
+                logger.LogDebug("Request Path: {Path}", context.Request.Path);
+
+                // Headers
+                foreach (var header in context.Request.Headers)
+                {
+                    logger.LogDebug("Header: {Key}: {Value}", header.Key, header.Value);
+                }
+
+                // Connection: RemoteIp
+                logger.LogDebug("Request RemoteIp: {RemoteIpAddress}", 
+                    context.Connection.RemoteIpAddress);
+
+                await next();
+            });
+
             // Create and update db
             var connectionString = Configuration["ConnectionStrings:AdminConnection"];
             EnsureDatabase.For.MySqlDatabase(connectionString);
@@ -57,10 +79,12 @@ namespace AARR_stat
 
             if (env.IsDevelopment())
             {
+                logger.LogInformation("In Development.");
                 app.UseDeveloperExceptionPage();
             }
             else
             {
+                logger.LogInformation("Not Development.");
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();

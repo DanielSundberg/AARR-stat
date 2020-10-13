@@ -27,8 +27,17 @@ namespace AARR_stat.Controllers
         }
 
         [HttpGet]
+        [Route("ping")]
+        public IActionResult Ping()
+        {
+            _logger.LogDebug("Ping");
+            return Ok(new { result = "pong"});
+        }
+
+        [HttpGet]
         public IEnumerable<SessionViewDto> Get(DateTime? start, DateTime? end)
         {
+            _logger.LogDebug("Get /");
             var sessionItems = new List<SessionViewDto>();
 
             try
@@ -60,6 +69,7 @@ namespace AARR_stat.Controllers
         [Route("StartSession")]
         public ActionResult PostStartSession([FromBody] StartSessionDto sessionDto) 
         {
+            _logger.LogDebug("Start session");
             try
             {
                 using (var db = new PetaPoco.Database(_configuration["ConnectionStrings:AARRStatConnection"], "MariaDb")) {
@@ -82,6 +92,34 @@ namespace AARR_stat.Controllers
                     }
                     session.Type = dbSessionType.Id;
                     db.Insert("session", "id", false, session);
+                }
+                return Ok(new { result = "ok" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        [Route("NewDevice")]
+        public ActionResult PostNewDevice([FromBody] NewDeviceDto newDeviceDto) 
+        {
+            _logger.LogDebug("PostNewDevice");
+            try
+            {
+                using (var db = new PetaPoco.Database(_configuration["ConnectionStrings:AARRStatConnection"], "MariaDb")) {
+                    var user = new User { Id = newDeviceDto.User };
+                    var device = new Device { Id = newDeviceDto.Id, User = user.Id, Description = newDeviceDto.Description };
+                    if (String.IsNullOrEmpty(db.SingleOrDefault<User>("where id=@0", newDeviceDto.User)?.Id))
+                    {
+                        db.Insert("user", "id", false, user);
+                    }
+                    if (String.IsNullOrEmpty(db.SingleOrDefault<Device>("where id=@0", newDeviceDto.Id)?.Id))
+                    {
+                        db.Insert("device", "id", false, device);
+                    } 
                 }
                 return Ok(new { result = "ok" });
             }

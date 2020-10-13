@@ -5,6 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "aws-lab:AARR-stat::AARR_stat.Controllers.AARRStatController::Ping (dotnetcore3.1)",
+            "invokeTarget": {
+                "target": "code",
+                "projectRoot": "",
+                "lambdaHandler": "AARR-stat::AARR_stat.Controllers.AARRStatController::Ping"
+            },
+            "lambda": {
+                "runtime": "dotnetcore3.1",
+                "payload": {},
+                "environmentVariables": {}
+            }
+        },
+        {
             "name": ".NET Core Launch (web)",
             "type": "coreclr",
             "request": "launch",
@@ -13,10 +28,6 @@
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
-            // "serverReadyAction": {
-            //     "action": "openExternally",
-            //     "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
-            // },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
