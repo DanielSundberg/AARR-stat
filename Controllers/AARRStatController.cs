@@ -103,7 +103,7 @@ namespace AARR_stat.Controllers
         }
 
         [HttpPost]
-        [Route("NewDevice")]
+        [Route("newdevice")]
         public ActionResult PostNewDevice([FromBody] NewDeviceDto newDeviceDto) 
         {
             _logger.LogDebug("PostNewDevice");
