@@ -66,7 +66,7 @@ namespace AARR_stat.Controllers
         }
 
         [HttpPost]
-        [Route("StartSession")]
+        [Route("startsession")]
         public ActionResult PostStartSession([FromBody] StartSessionDto sessionDto) 
         {
             _logger.LogDebug("Start session");
@@ -92,6 +92,33 @@ namespace AARR_stat.Controllers
                     }
                     session.Type = dbSessionType.Id;
                     db.Insert("session", "id", false, session);
+                }
+                return Ok(new { result = "ok" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        [Route("endsession")]
+        public ActionResult PostEndSession([FromBody] EndSessionDto endSessionDto) 
+        {
+            _logger.LogDebug("Start session");
+            try
+            {
+                using (var db = new PetaPoco.Database(_configuration["ConnectionStrings:AARRStatConnection"], "MariaDb")) {
+                    var dbSession = db.SingleOrDefault<Session>("where id=@0", endSessionDto.Session);
+                    if (dbSession == null) 
+                    {
+                        var msg = $"Did not find session with id : '{endSessionDto.Session}'.";
+                        _logger.LogError(msg);
+                        return BadRequest(new { result = "error", message = msg});
+                    }
+                    dbSession.End = DateTime.UtcNow;
+                    db.Update("session", "id", dbSession);
                 }
                 return Ok(new { result = "ok" });
             }
