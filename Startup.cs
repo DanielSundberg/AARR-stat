@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 
 namespace AARR_stat
 {
@@ -37,6 +39,13 @@ namespace AARR_stat
 
             // Register the Swagger generator
             services.AddSwaggerGen();
+
+            // Setup DynamoDb
+            services.AddSingleton<IAmazonDynamoDB>(sp =>
+            {
+                var clientConfig = new AmazonDynamoDBConfig();
+                return new AmazonDynamoDBClient(clientConfig);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
