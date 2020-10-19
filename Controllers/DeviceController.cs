@@ -37,7 +37,7 @@ namespace AARR_stat.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Get(string id) 
         {
-            _logger.LogDebug("PostNewDevice");
+            _logger.LogDebug("Get device");
             try
             {
                 using (var context = new DynamoDBContext(_dynamoDb)) {
