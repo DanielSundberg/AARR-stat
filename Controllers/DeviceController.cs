@@ -7,6 +7,7 @@ using AARR_stat.Model.Dto;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using AARR_stat.Model.Db;
+using System.Collections.Generic;
 
 namespace AARR_stat.Controllers
 {
@@ -31,6 +32,28 @@ namespace AARR_stat.Controllers
         {
             _logger.LogDebug("Ping");
             return Ok(new { result = "pong"});
+        }
+
+        [HttpGet]
+        [Route("")]
+        public async Task<IActionResult> Get() 
+        {
+            _logger.LogDebug("Get all devices");
+            try
+            {
+                using (var context = new DynamoDBContext(_dynamoDb)) {
+
+                    var devices = await context.ScanAsync<DynamoDbDevice>(new List<ScanCondition>()).GetRemainingAsync();
+                    return Ok(new { 
+                        result = "ok", 
+                        devices = devices.ToArray()
+                    });
+                }            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                throw;
+            }
         }
 
         [HttpGet]

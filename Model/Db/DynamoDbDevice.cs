@@ -11,7 +11,9 @@ namespace AARR_stat.Model.Db
         public string User { get; set; }
         public string Description { get; set; }
         public bool Enabled { get; set; }
+        [DynamoDBProperty("RegisterDate", typeof(DateTimeUtcConverter))]
         public DateTime RegisterDate { get; set; }
+        [DynamoDBProperty("UpdateDate", typeof(DateTimeUtcConverter))]
         public DateTime UpdateDate { get; set; }
         public bool Internal { get; set; }
     }

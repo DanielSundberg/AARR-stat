@@ -37,51 +37,33 @@ namespace AARR_stat.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(DateTime? start, DateTime? end)
         {
-            _logger.LogDebug("Get /");
-            var sessionItems = new List<SessionViewDto>();
+            _logger.LogDebug("Get /sessions");
 
             try
             {
-                // TODO: implement query
+                if (!start.HasValue) {
+                    start = DateTime.UtcNow.AddMonths(-1);
+                }
+                if (!end.HasValue) {
+                    end = DateTime.UtcNow;
+                }
 
-                // using (var db = new PetaPoco.Database(_configuration["ConnectionStrings:AARRStatConnection"], "MariaDb")) {
-                //     var sql = PetaPoco.Sql.Builder.Append("SELECT s.*,t.name AS type FROM session s JOIN sessiontype t ON s.type_id=t.id");
-                //     if (start.HasValue) {
-                //         sql.Append("WHERE s.start>=@0", start);
-                //     }
-                //     if (end.HasValue) {
-                //         sql.Append("WHERE s.start<@0", end);
-                //     }
-                //     // Default is to return last 24h
-                //     if (!start.HasValue && !end.HasValue) {
-                //         sql.Append("WHERE s.start>@0", DateTime.UtcNow.AddDays(-1));
-                //     }
-                //     sql.OrderBy("s.start");
-                //     sessionItems = db.Query<SessionViewDto>(sql).ToList();
-                // }
-                // using (var context = new DynamoDBContext(_dynamoDb)) {
-                //     var existingDevice = await context.<DynamoDbDevice>();
-                //     if (existingDevice != null) {
-                //         return Ok(new { 
-                //             result = "ok", 
-                //             device = existingDevice
-                //         });
-                //     }
-                //     else 
-                //     {
-                //         return BadRequest(new { result = "error", message = "Device not found." });
-                //     }
-                // }
+                using (var context = new DynamoDBContext(_dynamoDb)) {
+                    var conditions = new List<ScanCondition>();
+                    conditions.Add(new ScanCondition("Start", Amazon.DynamoDBv2.DocumentModel.ScanOperator.Between, start, end));
 
+                    var sessions = await context.ScanAsync<DynamoDbSession>(conditions).GetRemainingAsync();
+                    return Ok(new { 
+                        result = "ok", 
+                        sessions = sessions.ToArray()
+                    });
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
+                throw;
             }
-            return Ok( new {
-                result = "ok", 
-                sessions = sessionItems.ToArray()
-            });
         }
 
         [HttpPost]
