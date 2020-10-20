@@ -15,11 +15,11 @@ namespace AARR_stat.Controllers
     [Route("/aarrstat/device")]
     public class DeviceController : ControllerBase
     {
-        private readonly ILogger<AARRStatController> _logger;
+        private readonly ILogger<DeviceController> _logger;
         private readonly IConfiguration _configuration;
         private readonly IAmazonDynamoDB _dynamoDb;
 
-        public DeviceController(ILogger<AARRStatController> logger, IConfiguration configuration, IAmazonDynamoDB dynamoDb)
+        public DeviceController(ILogger<DeviceController> logger, IConfiguration configuration, IAmazonDynamoDB dynamoDb)
         {
             _logger = logger;
             _configuration = configuration;

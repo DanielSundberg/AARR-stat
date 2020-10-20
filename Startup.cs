@@ -1,18 +1,11 @@
-using System;
-using System.IO;
-using System.Reflection;
-using DbUp;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
 
 namespace AARR_stat
 {
@@ -71,20 +64,6 @@ namespace AARR_stat
 
                 await next();
             });
-
-            // Create and update db
-            var connectionString = Configuration["ConnectionStrings:AdminConnection"];
-            EnsureDatabase.For.MySqlDatabase(connectionString);
-            var upgrader = DeployChanges.To
-                .MySqlDatabase(connectionString)
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
-                .LogToConsole()
-                .Build();
-            var result = upgrader.PerformUpgrade();
-            if (!result.Successful)
-            {
-                throw new Exception(result.Error.Message, result.Error);
-            }
 
             if (env.IsDevelopment())
             {

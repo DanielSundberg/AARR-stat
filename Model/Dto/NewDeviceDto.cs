@@ -1,6 +1,3 @@
-using System;
-using PetaPoco;
-
 namespace AARR_stat.Model.Dto
 {
     public class NewDeviceDto
