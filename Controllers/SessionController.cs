@@ -129,13 +129,12 @@ namespace AARR_stat.Controllers
                         });
                     }
                     // Save session
-                    var now = DateTime.UtcNow;
-                    existingSession.DurationMS = Convert.ToInt32((now - existingSession.Start).TotalMilliseconds);
+                    existingSession.DurationMS = Convert.ToInt32((DateTime.UtcNow - existingSession.Start).TotalMilliseconds);
                     await context.SaveAsync(existingSession);
                     var savedSession = await context.LoadAsync<DynamoDbSession>(endSessionDto.Session);
 
                     // Calculate total and avg time today for this user
-                    var key = $"{existingSession.User}-{now.Year}-{now.DayOfYear}";
+                    var key = $"{existingSession.User}-{existingSession.Start.Year}-{existingSession.Start.DayOfYear}";
                     var userTotalDay = await context.LoadAsync<DynamoDbUserTotalDay>(key);
                     if (userTotalDay == null) {
                         userTotalDay = new DynamoDbUserTotalDay {
