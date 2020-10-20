@@ -107,7 +107,6 @@ namespace AARR_stat.Controllers
                             Enabled = newDeviceDto.Enabled,
                             RegisterDate = now,
                             UpdateDate = now, 
-                            Internal = newDeviceDto.Internal
                         };
                         await context.SaveAsync(newDevice);
                         return Ok(new { 
@@ -122,7 +121,6 @@ namespace AARR_stat.Controllers
                         existingDevice.Enabled = newDeviceDto.Enabled;
                         existingDevice.UpdateDate = now;
                         existingDevice.Description = newDeviceDto.Description;
-                        existingDevice.Internal = newDeviceDto.Internal;
                         await context.SaveAsync(existingDevice);
                         return Ok(new { 
                             result = "ok",
