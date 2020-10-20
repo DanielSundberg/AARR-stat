@@ -13,7 +13,6 @@ namespace AARR_stat.Model.Db
         public string Device { get; set; }
         [DynamoDBProperty("Start", typeof(DateTimeUtcConverter))]
         public DateTime Start { get; set; }
-        [DynamoDBProperty("End", typeof(DateTimeUtcConverter))]
-        public DateTime? End { get; set; }
+        public int DurationMS { get; set; }
     }
 }

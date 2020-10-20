@@ -119,7 +119,6 @@ namespace AARR_stat.Controllers
             {
                 using (var context = new DynamoDBContext(_dynamoDb)) {
 
-
                     // First try to load device
                     var existingSession = await context.LoadAsync<DynamoDbSession>(endSessionDto.Session);
 
@@ -130,13 +129,37 @@ namespace AARR_stat.Controllers
                         });
                     }
                     // Save session
-                    existingSession.End = DateTime.UtcNow;
+                    var now = DateTime.UtcNow;
+                    existingSession.DurationMS = Convert.ToInt32((now - existingSession.Start).TotalMilliseconds);
                     await context.SaveAsync(existingSession);
                     var savedSession = await context.LoadAsync<DynamoDbSession>(endSessionDto.Session);
+
+                    // Calculate total and avg time today for this user
+                    var key = $"{existingSession.User}-{now.Year}-{now.DayOfYear}";
+                    var userTotalDay = await context.LoadAsync<DynamoDbUserTotalDay>(key);
+                    if (userTotalDay == null) {
+                        userTotalDay = new DynamoDbUserTotalDay {
+                            UserYearDay = key
+                        };
+                    }
+                    userTotalDay.NofSessions += 1;
+                    userTotalDay.TotalMS += existingSession.DurationMS;
+                    userTotalDay.AvgMS = (int)Math.Round(userTotalDay.TotalMS / (double)userTotalDay.NofSessions);
+
+                    // Some extra tracking of longer sessions (over 60s)
+                    if (existingSession.DurationMS > 60000) {
+                        userTotalDay.NofSessionsOver60s += 1;
+                        userTotalDay.TotalOver60sMS += existingSession.DurationMS;
+                        userTotalDay.AvgOver60sMS = (int)Math.Round(userTotalDay.TotalOver60sMS / (double)userTotalDay.NofSessionsOver60s);
+                    }
+
+                    await context.SaveAsync(userTotalDay);
+
                     return Ok(new { 
                         result = "ok",
                         message = "Updated session.", 
-                        session = savedSession 
+                        session = savedSession, 
+                        userTotalDay = userTotalDay
                     });
                 }
             }
