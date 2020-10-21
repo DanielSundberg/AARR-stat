@@ -43,7 +43,7 @@ namespace AARR_stat.Controllers
             {
                 using (var context = new DynamoDBContext(_dynamoDb)) {
 
-                    var devices = await context.ScanAsync<DynamoDbDevice>(new List<ScanCondition>()).GetRemainingAsync();
+                    var devices = await context.ScanAsync<DbDevice>(new List<ScanCondition>()).GetRemainingAsync();
                     return Ok(new { 
                         result = "ok", 
                         devices = devices.ToArray()
@@ -64,7 +64,7 @@ namespace AARR_stat.Controllers
             try
             {
                 using (var context = new DynamoDBContext(_dynamoDb)) {
-                    var existingDevice = await context.LoadAsync<DynamoDbDevice>(id);
+                    var existingDevice = await context.LoadAsync<DbDevice>(id);
                     if (existingDevice != null) {
                         return Ok(new { 
                             result = "ok", 
@@ -95,12 +95,21 @@ namespace AARR_stat.Controllers
 
                     var now = DateTime.UtcNow;
 
-                    // First try to load device
-                    var existingDevice = await context.LoadAsync<DynamoDbDevice>(newDeviceDto.Id);
+                    // First create user if it doesn't exist
+                    var user = await context.LoadAsync<DbUser>(newDeviceDto.User);
+                    if (user == null) {
+                        user = new DbUser {
+                            Id = newDeviceDto.User
+                        };
+                        await context.SaveAsync(user);
+                    }
+
+                    // Try to load device
+                    var existingDevice = await context.LoadAsync<DbDevice>(newDeviceDto.Id);
 
                     if (existingDevice == null) {
                         // Create new device
-                        var newDevice = new DynamoDbDevice {
+                        var newDevice = new DbDevice {
                             Id = newDeviceDto.Id, 
                             User = newDeviceDto.User,
                             Description = newDeviceDto.Description,

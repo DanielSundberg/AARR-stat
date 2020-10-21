@@ -4,7 +4,7 @@ using Amazon.DynamoDBv2.DataModel;
 namespace AARR_stat.Model.Db
 {
     [DynamoDBTable("aarrstat-device")]
-    class DynamoDbDevice
+    class DbDevice
     {
         [DynamoDBHashKey]
         public string Id { get; set; }

@@ -68,7 +68,7 @@ namespace AARR_stat.Controllers
                     var conditions = new List<ScanCondition>();
                     conditions.Add(new ScanCondition("Start", Amazon.DynamoDBv2.DocumentModel.ScanOperator.Between, start, end));
 
-                    var sessions = await context.ScanAsync<DynamoDbSession>(conditions).GetRemainingAsync();
+                    var sessions = await context.ScanAsync<DbSession>(conditions).GetRemainingAsync();
                     return Ok(new { 
                         result = "ok", 
                         sessions = sessions.ToArray()
@@ -94,7 +94,7 @@ namespace AARR_stat.Controllers
                     var now = DateTime.UtcNow;
 
                     // First try to load device
-                    var existingDevice = await context.LoadAsync<DynamoDbDevice>(startSessionDto.Device);
+                    var existingDevice = await context.LoadAsync<DbDevice>(startSessionDto.Device);
 
                     if (existingDevice == null) {
                         return BadRequest(new { 
@@ -103,7 +103,7 @@ namespace AARR_stat.Controllers
                         });
                     }
                     // Save session
-                    var newSession = new DynamoDbSession {
+                    var newSession = new DbSession {
                         Id = startSessionDto.Session,
                         Type = startSessionDto.Type,
                         User = startSessionDto.User,
@@ -111,7 +111,7 @@ namespace AARR_stat.Controllers
                         Start = DateTime.UtcNow
                     };
                     await context.SaveAsync(newSession);
-                    var savedSession = await context.LoadAsync<DynamoDbSession>(startSessionDto.Session);
+                    var savedSession = await context.LoadAsync<DbSession>(startSessionDto.Session);
                     return Ok(new { 
                         result = "ok",
                         message = "Created session.", 
@@ -136,7 +136,7 @@ namespace AARR_stat.Controllers
                 using (var context = new DynamoDBContext(_dynamoDb)) {
 
                     // First try to load device
-                    var existingSession = await context.LoadAsync<DynamoDbSession>(endSessionDto.Session);
+                    var existingSession = await context.LoadAsync<DbSession>(endSessionDto.Session);
 
                     if (existingSession == null) {
                         return BadRequest(new { 
@@ -145,21 +145,25 @@ namespace AARR_stat.Controllers
                         });
                     }
                     // Save session
-                    existingSession.DurationMS = Convert.ToInt32((DateTime.UtcNow - existingSession.Start).TotalMilliseconds);
+                    var now = DateTime.UtcNow;
+                    existingSession.DurationMS = Convert.ToInt32((now - existingSession.Start).TotalMilliseconds);
                     await context.SaveAsync(existingSession);
-                    var savedSession = await context.LoadAsync<DynamoDbSession>(endSessionDto.Session);
+                    var savedSession = await context.LoadAsync<DbSession>(endSessionDto.Session);
 
                     // Calculate total and avg time today for this user
-                    var key = $"{existingSession.User}-{existingSession.Start.Year}-{existingSession.Start.DayOfYear}";
-                    var userTotalDay = await context.LoadAsync<DynamoDbUserTotalDay>(key);
+                    var dayOfYear = existingSession.Start.DayOfYear;
+                    var key = $"{existingSession.User}-{existingSession.Start.Year}-{dayOfYear}";
+                    var userTotalDay = await context.LoadAsync<DbUserTotalDay>(key);
                     if (userTotalDay == null) {
-                        userTotalDay = new DynamoDbUserTotalDay {
+                        userTotalDay = new DbUserTotalDay {
                             UserYearDay = key
                         };
                     }
                     userTotalDay.NofSessions += 1;
                     userTotalDay.TotalMS += existingSession.DurationMS;
                     userTotalDay.AvgMS = (int)Math.Round(userTotalDay.TotalMS / (double)userTotalDay.NofSessions);
+                    userTotalDay.Timestamp = now;
+                    userTotalDay.DayOfYear = dayOfYear;
 
                     // Some extra tracking of longer sessions (over 60s)
                     if (existingSession.DurationMS > 60000) {
