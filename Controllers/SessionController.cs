@@ -35,6 +35,22 @@ namespace AARR_stat.Controllers
         }
 
         [HttpGet]
+        [Route("testdb")]
+        public async Task<IActionResult> TestDb()
+        {
+            _logger.LogDebug("Testing db");
+            
+             
+            var sessionDescription = await _dynamoDb.DescribeTableAsync("aarrstat-session");
+
+            return Ok(new { 
+                result = "ok", 
+                message = $"Describe table http call status: {sessionDescription.HttpStatusCode}",
+                details = $"Nof items in session table: {sessionDescription.Table.ItemCount}"
+            });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Get(DateTime? start, DateTime? end)
         {
             _logger.LogDebug("Get /sessions");

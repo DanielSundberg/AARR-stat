@@ -28,6 +28,7 @@
     <When Condition="'$(EnvironmentName)' == 'Prod'">
       <ItemGroup>
         <Content Remove="appsettings.Development.json" />
+        <Content Remove="appsettings.Development.example.json" />
         <Content Remove="appsettings.prod.example.json" />
       </ItemGroup>
     </When>
