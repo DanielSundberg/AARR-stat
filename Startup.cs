@@ -13,7 +13,6 @@ namespace AARR_stat
     {
         public Startup(IConfiguration configuration)
         {
-
             Configuration = configuration;
         }
 
@@ -37,7 +36,9 @@ namespace AARR_stat
             services.AddSingleton<IAmazonDynamoDB>(sp =>
             {
                 var clientConfig = new AmazonDynamoDBConfig();
-                return new AmazonDynamoDBClient(clientConfig);
+                var keyId = Configuration["AWS:AWSAccessKey"];
+                var keySecret = Configuration["AWS:AWSSecretKey"];
+                return new AmazonDynamoDBClient(keyId, keySecret, clientConfig);
             });
         }
 

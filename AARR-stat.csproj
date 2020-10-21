@@ -60,4 +60,10 @@
     </ItemGroup>
   </Target>
 
+  <Target Name="CreateZip">
+    <ZipDirectory
+      SourceDirectory=".\Publish"
+      DestinationFile="$(MSBuildProjectDirectory)\aarrstat-$([System.DateTime]::UtcNow.ToString('yyyy-MM-dd-HHmmss')).zip" />
+  </Target>
+
 </Project>
