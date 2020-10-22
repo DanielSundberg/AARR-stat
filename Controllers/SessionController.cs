@@ -31,7 +31,15 @@ namespace AARR_stat.Controllers
         public IActionResult Ping()
         {
             _logger.LogDebug("Ping");
-            return Ok(new { result = "pong"});
+            return Ok(new { result = "pong from session (api key protected)"});
+        }
+
+        [HttpGet]
+        [Route("ping-protected")]
+        public IActionResult PingProtected()
+        {
+            _logger.LogDebug("Ping protected");
+            return Ok(new { result = "pong from session (cognito protected)"});
         }
 
         [HttpGet]

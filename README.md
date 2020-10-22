@@ -32,7 +32,7 @@ Note: if no aws config is added the IAM user added to your aws cli/sdk will be u
 Create a zip file for uploading to AWS EB
 ````
 > del /s /q .\publish
-> dotnet publish --output .\publish --configuration Release /p:EnvironmentName=Prod,
+> dotnet publish --output .\publish --configuration Release /p:EnvironmentName=Prod
 > del .\arrstat*.zip
 > dotnet build .\AARR-stat.csproj /target:CreateZip
 Zipping directory "C:\...\AARR-stat\Publish" to "C:\...\AARR-stat\aarrstat-2020-10-21-084013.zip"
