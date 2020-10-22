@@ -12,7 +12,7 @@ using System.Collections.Generic;
 namespace AARR_stat.Controllers
 {
     [ApiController]
-    [Route("/aarrstat/device")]
+    [Route("/api/device")]
     public class DeviceController : ControllerBase
     {
         private readonly ILogger<DeviceController> _logger;
@@ -31,7 +31,7 @@ namespace AARR_stat.Controllers
         public IActionResult Ping()
         {
             _logger.LogDebug("Ping");
-            return Ok(new { result = "pong"});
+            return Ok(new { result = "pong from device"});
         }
 
         [HttpGet]

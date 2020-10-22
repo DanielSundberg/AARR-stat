@@ -12,7 +12,7 @@ using System.Collections.Generic;
 namespace AARR_stat.Controllers
 {
     [ApiController]
-    [Route("/aarrstat/session")]
+    [Route("/api/session")]
     public class SessionController : ControllerBase
     {
         private readonly ILogger<SessionController> _logger;
@@ -31,15 +31,7 @@ namespace AARR_stat.Controllers
         public IActionResult Ping()
         {
             _logger.LogDebug("Ping");
-            return Ok(new { result = "pong from session (api key protected)"});
-        }
-
-        [HttpGet]
-        [Route("ping-protected")]
-        public IActionResult PingProtected()
-        {
-            _logger.LogDebug("Ping protected");
-            return Ok(new { result = "pong from session (cognito protected)"});
+            return Ok(new { result = "pong from session"});
         }
 
         [HttpGet]
