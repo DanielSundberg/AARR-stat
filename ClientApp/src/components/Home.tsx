@@ -1,5 +1,30 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+
+const data = [
+    {
+      id: 'Mon', name: 'Monday', users: 24,
+    },
+    {
+      id: 'Tue', name: 'Tuesday', users: 52,
+    },
+    {
+      id: 'Wed', name: 'Wednesday', users: 34,
+    },
+    {
+      id: 'Thu', name: 'Thursday', users: 74,
+    },
+    {
+      id: 'Fri', name: 'Friday', users: 52,
+    },
+    {
+      id: 'Sat', name: 'Saturday', users: 13,
+    },
+    {
+      id: 'Sun', name: 'Sunday', users: 42,
+    },
+];
 
 const Home = () => (
   <div>
@@ -17,6 +42,22 @@ const Home = () => (
       <li><strong>Efficient production builds</strong>. In production mode, development-time features are disabled, and your <code>dotnet publish</code> configuration produces minified, efficiently bundled JavaScript files.</li>
     </ul>
     <p>The <code>ClientApp</code> subdirectory is a standard React application based on the <code>create-react-app</code> template. If you open a command prompt in that directory, you can run <code>npm</code> commands such as <code>npm test</code> or <code>npm install</code>.</p>
+
+    <BarChart
+        width={500}
+        height={300}
+        data={data}
+        margin={{
+        top: 5, right: 30, left: 20, bottom: 5,
+        }}
+    >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="id" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="users" fill="#8884d8" />
+    </BarChart>
   </div>
 );
 
