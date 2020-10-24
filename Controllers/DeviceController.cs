@@ -99,7 +99,10 @@ namespace AARR_stat.Controllers
                     var user = await context.LoadAsync<DbUser>(newDeviceDto.User);
                     if (user == null) {
                         user = new DbUser {
-                            Id = newDeviceDto.User
+                            Id = newDeviceDto.User, 
+                            RegisterDate = now, 
+                            Email = "",
+                            Name = ""
                         };
                         await context.SaveAsync(user);
                     }

@@ -147,7 +147,9 @@ namespace AARR_stat.Controllers
                     }
                     // Save the current session
                     var now = DateTime.UtcNow;
-                    existingSession.DurationMS = Convert.ToInt32((now - existingSession.Start).TotalMilliseconds);
+                    // If session is more than 30 minutes something is probably wrong 
+                    // and it will be truncated to 30 minutes (1800s)
+                    existingSession.DurationMS = Math.Min(1800000, Convert.ToInt32((now - existingSession.Start).TotalMilliseconds));
                     await context.SaveAsync(existingSession);
                     var savedSession = await context.LoadAsync<DbSession>(endSessionDto.Session);
 

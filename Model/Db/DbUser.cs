@@ -8,5 +8,9 @@ namespace AARR_stat.Model.Db
     {
         [DynamoDBHashKey]
         public string Id { get; set; }
+        [DynamoDBProperty("RegisterDate", typeof(DateTimeUtcConverter))]
+        public DateTime RegisterDate { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
     }
 }

@@ -7,15 +7,8 @@ import { Redirect } from 'react-router';
 type AuthProps = AuthStore.AuthState & typeof AuthStore.actionCreators;
 
 class CheckAuth extends React.PureComponent<AuthProps> {
-    sessionValid() : boolean {
-        const sessionValid = this.props.token.length > 0 && this.props.expires > new Date();
-        // tslint-disable-next-line
-        // console.log("Session valid: ", sessionValid);
-        return sessionValid;
-    }
-  
     public render() {
-    if (this.sessionValid()) {
+    if (AuthStore.utils.sessionValid(this.props.token, this.props.expires)) {
         return (<Redirect to="/home" />);
     } else {
         return (<Redirect to="/login" />);

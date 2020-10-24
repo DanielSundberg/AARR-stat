@@ -17,7 +17,7 @@ class NavMenu extends React.PureComponent<AuthProps, { isOpen: boolean }> {
     };
 
     public render() {
-        if (this.props.token && this.props.token.length) {
+        if (AuthStore.utils.sessionValid(this.props.token, this.props.expires)) {
             return (
                 <header>
                     <Navbar className="navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3" light>

@@ -28,6 +28,15 @@ const headers = new Headers({
     'Content-Type': 'application/json'
 });
 
+export const utils = {
+    sessionValid: (token: string, expires: Date) =>  {
+        const sessionValid = token.length > 0 && expires > new Date();
+        // tslint-disable-next-line
+        // console.log("Session valid: ", sessionValid);
+        return sessionValid;
+    }
+}
+
 export const actionCreators = {
     requestLogin: (username: string, password: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
         const body = {
