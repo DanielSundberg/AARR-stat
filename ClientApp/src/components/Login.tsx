@@ -9,10 +9,11 @@ class Login extends React.PureComponent<AuthProps, {}> {
 
   loginClicked(self: any) { // tslint:disable-line
     self.props.requestLogin(self.state.username, self.state.password);
-    this.state = { 
+    self.setState({ 
         username: '',
         password: ''
-    };
+    });
+    // this.state = ;
   }
 
   public render() {

@@ -51,6 +51,8 @@ export const actionCreators = {
         .then(data => {
             if (data.result === "ok") {
                 let expires = new Date(Date.now() + data.expiresInSeconds * 1000);
+                localStorage.setItem("sessionToken", data.identityToken);
+                localStorage.setItem("sessionExpires", expires.toISOString());
                 dispatch({ type: 'RECEIVE_LOGIN', token: data.identityToken, expires: expires, error: "" });
             } else {
                 dispatch({ type: 'RECEIVE_LOGIN', token: "", expires: new Date(0), error: data.message });
@@ -64,7 +66,12 @@ export const actionCreators = {
     }
 };
 
-const unloadedState: AuthState = { token: "", expires: new Date(0), error: "", isLoading: false };
+const unloadedState: AuthState = { 
+    token: localStorage.getItem("sessionToken") || '', 
+    expires: new Date(localStorage.getItem("sessionExpires") || ''), 
+    error: "", 
+    isLoading: false 
+};
 
 export const reducer: Reducer<AuthState> = (state: AuthState | undefined, incomingAction: Action): AuthState => {
     if (state === undefined) {

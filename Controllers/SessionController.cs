@@ -8,6 +8,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using AARR_stat.Model.Db;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace AARR_stat.Controllers
 {
@@ -144,41 +145,87 @@ namespace AARR_stat.Controllers
                             message = "Unknown session."
                         });
                     }
-                    // Save session
+                    // Save the current session
                     var now = DateTime.UtcNow;
                     existingSession.DurationMS = Convert.ToInt32((now - existingSession.Start).TotalMilliseconds);
                     await context.SaveAsync(existingSession);
                     var savedSession = await context.LoadAsync<DbSession>(endSessionDto.Session);
 
-                    // Calculate total and avg time today for this user
-                    var dayOfYear = existingSession.Start.DayOfYear;
-                    var key = $"{existingSession.User}-{existingSession.Start.Year}-{dayOfYear}";
+                    // Calculate and save statistics
+                    var yearForDay = existingSession.Start.Year;
+                    var day = existingSession.Start.DayOfYear;
+                    var (yearForWeek, week) = GetIso8601WeekOfYear(existingSession.Start);
+                    var firstSessionToday = false;
+                    var firstSessionThisWeek = false;
+
+                    // User day total
+                    var key = $"{existingSession.User}-{yearForDay}-{day}";
                     var userTotalDay = await context.LoadAsync<DbUserTotalDay>(key);
                     if (userTotalDay == null) {
                         userTotalDay = new DbUserTotalDay {
                             UserYearDay = key
                         };
+                        firstSessionToday = true;
                     }
-                    userTotalDay.NofSessions += 1;
-                    userTotalDay.TotalMS += existingSession.DurationMS;
-                    userTotalDay.AvgMS = (int)Math.Round(userTotalDay.TotalMS / (double)userTotalDay.NofSessions);
+                    userTotalDay.Day = day;
                     userTotalDay.Timestamp = now;
-                    userTotalDay.DayOfYear = dayOfYear;
-
-                    // Some extra tracking of longer sessions (over 60s)
-                    if (existingSession.DurationMS > 60000) {
-                        userTotalDay.NofSessionsOver60s += 1;
-                        userTotalDay.TotalOver60sMS += existingSession.DurationMS;
-                        userTotalDay.AvgOver60sMS = (int)Math.Round(userTotalDay.TotalOver60sMS / (double)userTotalDay.NofSessionsOver60s);
-                    }
-
+                    FillAggregatedStatistics(userTotalDay, existingSession.DurationMS);
                     await context.SaveAsync(userTotalDay);
+
+                    // User week total
+                    key = $"{existingSession.User}-{yearForWeek}-{week}";
+                    var userTotalWeek = await context.LoadAsync<DbUserTotalWeek>(key);
+                    if (userTotalWeek == null) {
+                        userTotalWeek = new DbUserTotalWeek {
+                            UserYearWeek = key
+                        };
+                        firstSessionThisWeek = true;
+                    }
+                    userTotalWeek.Week = week;
+                    userTotalWeek.Timestamp = now;
+                    FillAggregatedStatistics(userTotalWeek, existingSession.DurationMS);
+                    await context.SaveAsync(userTotalWeek);
+
+                    // Grand total day
+                    key = $"{yearForDay}-{day}";
+                    var grandTotalDay = await context.LoadAsync<DbGrandTotalDay>(key);
+                    if (grandTotalDay == null) {
+                        grandTotalDay = new DbGrandTotalDay {
+                            YearDay = key
+                        };
+                    }
+                    grandTotalDay.Day = day;
+                    grandTotalDay.Timestamp = now;
+                    if (firstSessionToday) {
+                        grandTotalDay.UserCount += 1;
+                    }
+                    FillAggregatedStatistics(grandTotalDay, existingSession.DurationMS);
+                    await context.SaveAsync(grandTotalDay);
+
+                    // Grand total week
+                    key = $"{yearForWeek}-{week}";
+                    var grandTotalWeek = await context.LoadAsync<DbGrandTotalWeek>(key);
+                    if (grandTotalWeek == null) {
+                        grandTotalWeek = new DbGrandTotalWeek {
+                            YearWeek = key
+                        };
+                    }
+                    grandTotalWeek.Week = week;
+                    grandTotalWeek.Timestamp = now;
+                    if (firstSessionThisWeek) {
+                        grandTotalWeek.UserCount += 1;
+                    }
+                    FillAggregatedStatistics(grandTotalWeek, existingSession.DurationMS);
+                    await context.SaveAsync(grandTotalWeek);
 
                     return Ok(new { 
                         result = "ok",
                         message = "Updated session.", 
                         session = savedSession, 
-                        userTotalDay = userTotalDay
+                        userTotalDay = userTotalDay, 
+                        userTotalWeek = userTotalWeek,
+                        grandTotalDay = grandTotalDay, 
+                        grandTotalWeek = grandTotalWeek
                     });
                 }
             }
@@ -188,6 +235,34 @@ namespace AARR_stat.Controllers
                 throw;
             }
         }
+        
+        private void FillAggregatedStatistics(CommonAggregationFields fields, int sessionDuration) 
+        {
+            fields.NofSessions += 1;
+            fields.TotalMS += sessionDuration;
+            fields.AvgMS = (int)Math.Round(fields.TotalMS / (double)fields.NofSessions);
+            if (sessionDuration > 60000) {
+                fields.NofLongSession += 1;
+                fields.TotalLongSessionMS += sessionDuration;
+                fields.AvgLongSessionMS = (int)Math.Round(fields.TotalLongSessionMS / (double)fields.NofLongSession);
+            }
+        }
 
+        private static (int, int) GetIso8601WeekOfYear(DateTime time)
+        {
+            // https://stackoverflow.com/a/11155102
+
+            // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll 
+            // be the same week# as whatever Thursday, Friday or Saturday are,
+            // and we always get those right
+            DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
+            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
+            {
+                time = time.AddDays(3);
+            }
+
+            // Return the week of our adjusted day
+            return (time.Year, CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday));
+        } 
     }
 }
