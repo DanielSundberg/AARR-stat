@@ -3,6 +3,14 @@ a {
   color: #0366d6;
 }
 
+p {
+  font-size: 1em;
+}
+
+tspan {
+  font-size: 0.7em;
+}
+
 code {
   color: #E01A76;
 }

@@ -39,46 +39,6 @@ namespace AARR_stat.Controllers
         }
 
         [HttpGet]
-        [Route("ping-authenticated")]
-        public IActionResult PingAuthenticated()
-        {
-            _logger.LogDebug("Ping");
-            return Ok(new { result = "pong from login (authenticated user)"});
-        }
-
-        [HttpPost]
-        [Route("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
-        {
-            _logger.LogDebug("Login");
-
-            try 
-            {
-                var provider = new AmazonCognitoIdentityProviderClient(
-                    new Amazon.Runtime.AnonymousAWSCredentials(), 
-                    RegionEndpoint.GetBySystemName(_configuration["AWS:Cognito:Region"]));
-                var userPool = new CognitoUserPool(_configuration["AWS:Cognito:PoolId"], _configuration["AWS:Cognito:ClientId"], provider);
-                var user = new CognitoUser(loginDto.Username, _configuration["AWS:Cognito:ClientId"], userPool, provider);
-                var authRequest = new InitiateSrpAuthRequest() { Password = loginDto.Password };
-                var authResponse = await user.StartWithSrpAuthAsync(authRequest).ConfigureAwait(false);
-                
-                return Ok(new { 
-                    result = "ok", 
-                    identityToken = authResponse.AuthenticationResult.IdToken, 
-                    expiresInSeconds = authResponse.AuthenticationResult.ExpiresIn
-                });
-            }
-            catch (Amazon.CognitoIdentityProvider.Model.NotAuthorizedException ex) 
-            {
-                return Unauthorized(new { 
-                    result = "error", 
-                    type = ex.GetType().ToString(), 
-                    message = ex.Message 
-                });
-            }
-        }
-
-        [HttpGet]
         [Route("dashboard")]
         public async Task<IActionResult> GetDashboardStats() {
             using (var context = new DynamoDBContext(_dynamoDb)) {
