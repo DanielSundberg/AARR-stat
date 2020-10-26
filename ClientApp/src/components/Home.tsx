@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ApplicationState } from '../store';
+import * as AuthStore from '../store/Auth';
 
 interface HomeState {
     usersPerDay: [];
@@ -10,11 +12,11 @@ interface HomeState {
     isLoading: boolean;
 }
 
-const headers = new Headers({
-    'Accept': 'application/json',
-});
+type AuthProps = AuthStore.AuthState & typeof AuthStore.actionCreators;
 
-class Home extends React.PureComponent<{}, HomeState> {
+class Home extends React.PureComponent<AuthProps, HomeState> {
+    abortController : AbortController = new AbortController();
+
     constructor(props: any) {
         super(props);
         this.state = { 
@@ -29,9 +31,15 @@ class Home extends React.PureComponent<{}, HomeState> {
     componentDidMount() {
         // We're only going to fetch read only data
         // No need for a store or to communicate state
+
+        const headers = new Headers({
+            'Accept': 'application/json',
+            'Authorization': this.props.token
+        });
         fetch(`app/dashboard`, { 
             method: 'Get', 
-            headers: headers
+            headers: headers, 
+            signal: this.abortController.signal
         })
         .then(res => {
             if (res.status !== 401 && !res.ok) {
@@ -70,6 +78,10 @@ class Home extends React.PureComponent<{}, HomeState> {
                 error: err
             })
         });
+    }
+
+    componentWillUnmount() {
+        this.abortController.abort();
     }
 
     render() {
@@ -151,4 +163,7 @@ class Home extends React.PureComponent<{}, HomeState> {
     }
 }
 
-export default connect()(Home);
+export default connect(
+    (state: ApplicationState) => state.auth, // Selects which state properties are merged into the component's props
+    AuthStore.actionCreators // Selects which action creators are merged into the component's props
+)(Home as any);

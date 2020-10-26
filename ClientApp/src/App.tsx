@@ -12,6 +12,9 @@ export default () => (
         <Route exact path='/' component={CheckAuth} />
         <Route exact path='/login' component={Login} />
         <Route exact path='/home' component={Home} />
+        <Route exact path='/details' component={Home} />
+        <Route exact path='/system' component={Home} />
+        <Route exact path='/logout' component={Home} />
         <Route component={CheckAuth} />
     </Layout>
 );

@@ -12,7 +12,7 @@ using System.Collections.Generic;
 namespace AARR_stat.Controllers
 {
     [ApiController]
-    [Route("/api/system")]
+    [Route("/app/system")]
     public class SystemController : ControllerBase
     {
         private readonly ILogger<SessionController> _logger;

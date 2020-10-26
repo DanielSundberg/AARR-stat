@@ -30,7 +30,10 @@ class NavMenu extends React.PureComponent<AuthProps, { isOpen: boolean }> {
                                         <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
                                     </NavItem>
                                     <NavItem>
-                                        <NavLink tag={Link} className="text-dark" to="/history">History</NavLink>
+                                        <NavLink tag={Link} className="text-dark" to="/details">Details</NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink tag={Link} className="text-dark" to="/system">System</NavLink>
                                     </NavItem>
                                 </ul>
                             </Collapse>

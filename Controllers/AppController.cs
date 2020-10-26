@@ -35,7 +35,7 @@ namespace AARR_stat.Controllers
         public IActionResult Ping()
         {
             _logger.LogDebug("Ping");
-            return Ok(new { result = "pong from login"});
+            return Ok(new { result = "pong from app"});
         }
 
         [HttpGet]

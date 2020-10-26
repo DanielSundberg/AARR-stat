@@ -43,7 +43,7 @@ export const actionCreators = {
             username: username, 
             password: password
         };
-        fetch(`login/login`, { 
+        fetch(`login`, { 
             method: 'POST', 
             headers: headers, 
             body: JSON.stringify(body)
