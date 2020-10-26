@@ -34,6 +34,7 @@ namespace AARR_stat.Controllers
         }
 
         [HttpPost]
+        [Route("login")]
         public async Task<IActionResult> Post([FromBody] LoginDto loginDto)
         {
             _logger.LogDebug("Login");
