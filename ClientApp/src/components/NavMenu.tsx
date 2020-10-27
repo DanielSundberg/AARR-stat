@@ -27,13 +27,13 @@ class NavMenu extends React.PureComponent<AuthProps, { isOpen: boolean }> {
                             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={this.state.isOpen} navbar>
                                 <ul className="navbar-nav flex-grow">
                                     <NavItem>
-                                        <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
+                                        <NavLink tag={Link} className="text-dark" to="/Home">Home</NavLink>
                                     </NavItem>
                                     <NavItem>
-                                        <NavLink tag={Link} className="text-dark" to="/details">Details</NavLink>
+                                        <NavLink tag={Link} className="text-dark" to="/Details">Details</NavLink>
                                     </NavItem>
                                     <NavItem>
-                                        <NavLink tag={Link} className="text-dark" to="/system">System</NavLink>
+                                        <NavLink tag={Link} className="text-dark" to="/System">System</NavLink>
                                     </NavItem>
                                 </ul>
                             </Collapse>

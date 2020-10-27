@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { ApplicationState } from '../store';
 import * as AuthStore from '../store/Auth';
+import AARRStatBarChart from './AARRStatBarChart';
 
 interface HomeState {
     usersPerDay: [];
@@ -29,17 +29,20 @@ class Home extends React.PureComponent<AuthProps, HomeState> {
     }
 
     componentDidMount() {
+        this.refreshData(this);
+    }
+
+    refreshData(self: any) { // tslint:disable-line
         // We're only going to fetch read only data
         // No need for a store or to communicate state
-
         const headers = new Headers({
             'Accept': 'application/json',
-            'Authorization': this.props.token
+            'Authorization': self.props.token
         });
         fetch(`app/dashboard`, { 
             method: 'Get', 
             headers: headers, 
-            signal: this.abortController.signal
+            signal: self.abortController.signal
         })
         .then(res => {
             if (res.status !== 401 && !res.ok) {
@@ -52,7 +55,7 @@ class Home extends React.PureComponent<AuthProps, HomeState> {
         })
         .then(data => {
             if (data.result === "ok") {
-                this.setState({
+                self.setState({
                     usersPerDay: data.usersPerDay,
                     totPerDay: data.totPerDay,
                     avgLongSessionPerDay: data.avgLongSessionPerDay, 
@@ -60,7 +63,7 @@ class Home extends React.PureComponent<AuthProps, HomeState> {
                     error: ''
                 });
             } else {
-                this.setState({
+                self.setState({
                     usersPerDay: [],
                     totPerDay: [],
                     avgLongSessionPerDay: [], 
@@ -70,7 +73,7 @@ class Home extends React.PureComponent<AuthProps, HomeState> {
             }
         })
         .catch(err => {
-            this.setState({
+            self.setState({
                 usersPerDay: [],
                 totPerDay: [],
                 avgLongSessionPerDay: [], 
@@ -105,58 +108,23 @@ class Home extends React.PureComponent<AuthProps, HomeState> {
         } else {
             return (
                 <div>
-                  <p>AARR RSS Reader usage data. This is usage data collected from AARR users during the last 10 days.</p>
-                  <h5>Users per day</h5>
-                  <BarChart
-                      width={600}
-                      height={200}
-                      data={this.state.usersPerDay}
-                      margin={{
-                      top: 5, right: 30, left: 20, bottom: 5,
-                      }}
-                  >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="key" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="value" fill="#8884d8" />
-                  </BarChart>
+                    <p>AARR RSS Reader usage data. This is usage data collected from AARR users during the last 10 days.</p>
+                    <h5>Users per day</h5>
+                    <AARRStatBarChart data={this.state.usersPerDay} />
               
-                  <h5>Total time per day (minutes)</h5>
-                  <BarChart
-                      width={600}
-                      height={200}
-                      data={this.state.totPerDay}
-                      margin={{
-                      top: 5, right: 30, left: 20, bottom: 5,
-                      }}
-                  >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="key" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="value" fill="#8884d8" />
-                  </BarChart>
-              
-                  <h5>Average long session time (seconds)</h5>
-                  <BarChart
-                      width={600}
-                      height={200}
-                      data={this.state.avgLongSessionPerDay}
-                      margin={{
-                      top: 5, right: 30, left: 20, bottom: 5,
-                      }}
-                  >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="key" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="value" fill="#8884d8" />
-                  </BarChart>
-              
+                    <h5>Total time per day (minutes)</h5>
+                    <AARRStatBarChart data={this.state.totPerDay} />
+
+                    <h5>Average long session time (seconds)</h5>
+                    <AARRStatBarChart data={this.state.avgLongSessionPerDay} />
+
+                    <button 
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={(ev: any) => this.refreshData(this)}
+                    >
+                        Refresh
+                    </button>
                 </div>
               );
         }
