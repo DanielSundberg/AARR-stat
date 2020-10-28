@@ -111,11 +111,18 @@ class Home extends React.PureComponent<AuthProps, HomeState> {
                     <p>AARR RSS Reader usage data. This is usage data collected from AARR users during the last 10 days.</p>
                     <h5>Users per day</h5>
                     <AARRStatBarChart data={this.state.usersPerDay} />
-              
-                    <h5>Total time per day (minutes)</h5>
+
+                    <h5>
+                        Total time per day
+                        <small className="text-muted"> - minutes spent in the app across all users</small>
+                    </h5>
+                    
                     <AARRStatBarChart data={this.state.totPerDay} />
 
-                    <h5>Average long session time (seconds)</h5>
+                    <h5>
+                        Average long session time 
+                        <small className="text-muted"> - seconds of focused session time across all users</small>
+                    </h5>
                     <AARRStatBarChart data={this.state.avgLongSessionPerDay} />
 
                     <button 
